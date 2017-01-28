@@ -1,0 +1,2 @@
+mako >= 1.0
+coverage >= 4.0a7
