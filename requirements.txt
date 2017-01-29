@@ -1,2 +1,2 @@
-mako >= 1.0
+Jinja2
 coverage >= 4.0a7
