@@ -6,11 +6,6 @@ from jinja2 import Environment
 from jinja2.loaders import FileSystemLoader
 
 
-# For debugging the plugin itself.
-SHOW_PARSING = True
-SHOW_TRACING = False
-
-
 class JinjaPlugin(coverage.plugin.CoveragePlugin):
     def __init__(self, options):
         self.template_directory = options.get("template_directory")
@@ -62,43 +57,12 @@ class FileReporter(coverage.plugin.FileReporter):
 
     def lines(self):
         source_lines = set()
-
-        if SHOW_PARSING:
-            print("-------------- {}".format(self.filename))
-
+        # this is what Jinja2 does when parsing, however not sure
+        # if we do it correctly b/c Jinja doesn't provide correct
+        # mappings between compiled Python code and HTML template text
         tokens = self.environment._tokenize(self.source(), self.filename)
 
         for token in tokens:
-            if SHOW_PARSING:
-                print(token)
-
             source_lines.add(token.lineno)
 
-            if SHOW_PARSING:
-                print("\t\t\tNow source_lines is: {!r}".format(source_lines))
-
         return source_lines
-
-def dump_frame(frame, label=""):
-    """Dump interesting information about this frame."""
-    locals = dict(frame.f_locals)
-    self = locals.get('self', None)
-    context = locals.get('context', None)
-    if "__builtins__" in locals:
-        del locals["__builtins__"]
-
-    if label:
-        label = " ( %s ) " % label
-    print("-- frame --%s---------------------" % label)
-    print("{}:{}:{}".format(
-        frame.f_code.co_filename,
-        frame.f_lineno,
-        type(self),
-        ))
-    from pprint import pprint
-    pprint(locals)
-    if self:
-        print("self:", self.__dict__)
-    if context:
-        print("context:", context.__dict__)
-    print("\\--")

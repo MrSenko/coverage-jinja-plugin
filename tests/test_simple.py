@@ -46,13 +46,31 @@ class JinjaPluginTestCase(unittest.TestCase):
 
 
 class TemplateTextTest(JinjaPluginTestCase):
-# raises traceback in Jinja b/c debuginfo is empty
-#    def test_one_line(self):
-#        text, line_data = self.do_jinja_coverage('hello.html')
-#        self.assertEqual(text, "Hello World")
-#        self.assertEqual(line_data, [1])
+    def test_one_line(self):
+        """
+            Depends on https://github.com/pallets/jinja/pull/673
+        """
+        return
+        text, line_data = self.do_jinja_coverage('hello.html')
+        self.assertEqual(text, "Hello World")
+        self.assertEqual(line_data, [1])
 
-    def test_empty_loop(self):
+    def test_empty_for_loop(self):
         text, line_data = self.do_jinja_coverage('loop.html', {'users': []})
         self.assertEqual(text, "<ul>\n  \n  </ul>")
-        self.assertEqual(line_data, [1, 3, 4])
+        self.assertEqual(line_data, [1, 2, 3, 5, 6, 7])
+
+    def test_non_empty_for_loop(self):
+        text, line_data = self.do_jinja_coverage('loop.html', {'users': ['Alex', 'Mr. Senko']})
+        self.assertEqual(text, "<ul>\n  \n    <li>Hello Alex</li>\n  \n    <li>Hello Mr. Senko</li>\n  \n  </ul>")
+        self.assertEqual(line_data, [1, 2, 3, 4, 5, 6, 7])
+
+    def test_if(self):
+        text, line_data = self.do_jinja_coverage('if.html', {'user': 'Alex'})
+        self.assertEqual(text, "Hello Alex")
+        self.assertEqual(line_data, [1, 2, 3, 5])
+
+    def test_else(self):
+        text, line_data = self.do_jinja_coverage('if.html', {'user': ''})
+        self.assertEqual(text, "Nobody home")
+        self.assertEqual(line_data, [1, 3, 4, 5])
